@@ -1,7 +1,5 @@
-﻿// pdfiumSamples01.cpp : 애플리케이션의 진입점을 정의합니다.
+﻿// pdfiumSample01.cpp : 애플리케이션의 진입점을 정의합니다.
 //
-
-#include "pdfiumSamples.h"
 #include <fpdfview.h>
 
 using namespace std;
