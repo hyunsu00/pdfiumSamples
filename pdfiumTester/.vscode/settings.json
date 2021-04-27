@@ -1,0 +1,11 @@
+{
+	"files.associations": {
+		"fstream": "cpp",
+		"thread": "cpp",
+		"type_traits": "cpp",
+		"array": "cpp",
+		"string": "cpp",
+		"vector": "cpp"
+	},
+	"C_Cpp.formatting": "Disabled"
+}
