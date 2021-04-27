@@ -30,6 +30,11 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	find_package(PNG REQUIRED)
 	include_directories(${PNG_INCLUDE_DIR})
 	message(STATUS "\${PNG_INCLUDE_DIR} = ${PNG_INCLUDE_DIR}")
+
+	# TBB find_package 안됨 - github 참고
+	# find_package(TBB REQUIRED)
+	# include_directories(${TBB_INCLUDE_DIR})
+	# message(STATUS "\${TBB_INCLUDE_DIR} = ${TBBINCLUDE_DIR}")
 endif() 
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -50,6 +55,7 @@ add_executable (${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} pdfium)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	target_link_libraries(${PROJECT_NAME} ${PNG_LIBRARY})
+	target_link_libraries(${PROJECT_NAME} "tbb")
 else()
 	target_link_libraries(${PROJECT_NAME} "gdiplus.lib")
 endif()
