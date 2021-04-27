@@ -3,7 +3,7 @@
 #include <fpdf_formfill.h> // FPDFDOC_InitFormFillEnvironment, FPDFDOC_ExitFormFillEnvironment
 #include <vector> // std::vector
 #include <string> // std::string
-#include "fpdf_converter.inl"
+#include "fpdf_converter.h"
 
 #ifdef _WIN32
 #else

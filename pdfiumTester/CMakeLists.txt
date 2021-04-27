@@ -1,6 +1,4 @@
-# CMakeList.txt: pdfiumSamples에 대한 CMake 프로젝트, 여기에 소스를 포함하고
-# 프로젝트 특정 논리를 정의합니다.
-#
+# CMakeList.txt
 cmake_minimum_required (VERSION 2.8)
 
 #
@@ -41,10 +39,10 @@ endif()
 ###
 # 이 프로젝트의 실행 파일에 소스를 추가합니다.
 add_executable (${PROJECT_NAME} 
-	"pdfiumTester.cpp" 
+	"main.cpp" 
 	${SRC_FILES}
 	"span.h" 
-	"fpdf_converter.inl"
+	"fpdf_converter.h"
 )
 
 ###

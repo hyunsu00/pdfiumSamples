@@ -9,6 +9,7 @@ namespace std {
     template<typename T>
     using span = typename tcb::span<T>;
 }
+
 namespace image { namespace png {
 
     // Decode a PNG into an RGBA pixel array, or BGRA pixel array if

@@ -1,16 +1,11 @@
 ﻿// image_png.cpp
 #include "image_png.h"
+#include "debug_assert.h"
 
 #include <png.h>
 #include <zlib.h> // Z_DEFAULT_COMPRESSION
 #include <memory.h> // memcpy
 #include <string> // std::string
-//
-#include <assert.h>
-#define DCHECK assert
-#define NOTREACHED() DCHECK(false)
-#define FALLTHROUGH
-//
 
 namespace image { namespace png { namespace {
 
@@ -247,7 +242,7 @@ namespace image { namespace png { namespace {
                 state->output_channels = 1;
                 break;
             default:
-                NOTREACHED();
+                _ASSERTE(!"NOTREACHED");
                 break;
             }
         } else if (channels == 4) {
@@ -265,11 +260,11 @@ namespace image { namespace png { namespace {
                 state->output_channels = 4;
                 break;
             default:
-                NOTREACHED();
+                _ASSERTE(!"NOTREACHED");
                 break;
             }
         } else {
-            NOTREACHED();
+            _ASSERTE(!"NOTREACHED");
             longjmp(png_jmpbuf(png_ptr), 1);
         }
 
@@ -286,7 +281,7 @@ namespace image { namespace png { namespace {
             static_cast<PngDecoderState*>(png_get_progressive_ptr(png_ptr));
 
         if (static_cast<int>(row_num) > state->height) {
-            NOTREACHED();
+            _ASSERTE(!"NOTREACHED");
             return;
         }
 
@@ -589,8 +584,6 @@ namespace image { namespace png { namespace {
         {
         case FORMAT_BGR:
             converter = ConvertBGRtoRGB;
-            FALLTHROUGH;
-
         case FORMAT_RGB:
             input_color_components = 3;
             output_color_components = 3;
@@ -630,7 +623,7 @@ namespace image { namespace png { namespace {
             break;
 
         default:
-            NOTREACHED();
+            _ASSERTE(!"NOTREACHED");
             return output;
         }
 
