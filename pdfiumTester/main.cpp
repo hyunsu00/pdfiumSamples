@@ -9,10 +9,14 @@
 #include <iostream>
 
 #ifdef _WIN32
+#   include <ppl.h>
 #else
 #   include <string.h> // strdup
 #   include <libgen.h> // dirname
-#   include <tbb/parallel_for_each.h>
+#   include <tbb/parallel_for_each.h> // parallel_for_each
+namespace concurrency {
+    using tbb::parallel_for_each;
+}
 #endif
 
 int main(int argc, char* argv[])
@@ -71,10 +75,9 @@ int main(int argc, char* argv[])
         return buffer;
     };
 
-    std::string pdfName = "sample01";
-    std::string samplePath = exeDir + "samples/" + pdfName + ".pdf";
-    std::string resultDir = exeDir + "result/";
-    std::string resultPath;
+    const std::string pdfName = "sample01";
+    const std::string samplePath = exeDir + "samples/" + pdfName + ".pdf";
+    const std::string resultDir = exeDir + "result/";
 
 	FPDF_LIBRARY_CONFIG config;
 
@@ -86,7 +89,7 @@ int main(int argc, char* argv[])
 	::FPDF_InitLibraryWithConfig(&config);
     {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-#if 1       
+#if 0       
         FPDF_DOCUMENT document = ::FPDF_LoadDocument(samplePath.c_str(), nullptr);
 #else
         size_t buffer_len = 0;
@@ -95,13 +98,13 @@ int main(int argc, char* argv[])
 #endif
         FPDF_FORMHANDLE form = FPDFDOC_InitFormFillEnvironment(document, nullptr);
         {
-#if 1            
+#if 0            
             for (int pageIndex = 0; pageIndex < FPDF_GetPageCount(document); pageIndex++) {
                 FPDF_PAGE page = ::FPDF_LoadPage(document, pageIndex);
                 {
                     FPDF_TEXTPAGE textPage = ::FPDFText_LoadPage(page);
                     {
-                        resultPath = resultDir + pdfName + "." + std::to_string(pageIndex) + ".png";
+                        std::string resultPath = resultDir + pdfName + "." + std::to_string(pageIndex) + ".png";
                         // PNG파일 추출
                         fpdf::converter::WritePng(resultPath.c_str(), page, form, 96.F);
                     }
@@ -110,27 +113,26 @@ int main(int argc, char* argv[])
                 ::FPDF_ClosePage(page);
             }
 #else
-            // Pdfium은 쓰레드 쎄이프 하지 않다. --> 실망
+            // !!!!! Pdfium은 쓰레드 쎄이프 하지 않다. --> 실망
+            // https://groups.google.com/g/pdfium/c/HeZSsM_KEUk
             std::vector<int> vIndex(FPDF_GetPageCount(document));
             for (size_t i = 0; i < vIndex.size(); i++) vIndex[i] = i;
 
-            tbb::parallel_for_each(
+            concurrency::parallel_for_each(
                 vIndex.begin(),
                 vIndex.end(),
                 [&](int pageIndex) {
-                    std::cout << "begin pageIndex = " << pageIndex << std::endl;
                     FPDF_PAGE page = ::FPDF_LoadPage(document, pageIndex);
                     {
                         FPDF_TEXTPAGE textPage = ::FPDFText_LoadPage(page);
                         {
-                            resultPath = resultDir + pdfName + "." + std::to_string(pageIndex) + ".png";
+                            std::string resultPath = resultDir + pdfName + "." + std::to_string(pageIndex) + ".png";
                             // PNG파일 추출
                             fpdf::converter::WritePng(resultPath.c_str(), page, form, 96.F);
                         }
                         ::FPDFText_ClosePage(textPage);
                     }
                     ::FPDF_ClosePage(page);
-                    std::cout << "end pageIndex = " << pageIndex << std::endl;
                 }
             );
 #endif

@@ -24,13 +24,16 @@ message(STATUS "\${PDFium_INCLUDE_DIR} = ${PDFium_INCLUDE_DIR}")
 message(STATUS "\${CMAKE_CURRENT_LIST_DIR} = ${CMAKE_CURRENT_LIST_DIR}")
 
 # 패키지 찾기 - PNGConfig.cmake 파일 인클루드
-# sudo apt install libpng-dev (데비안)
-# sudo yum install libpng-devel (레드헷)
+# sudo apt install libpng-dev -y (데비안)
+# sudo yum install libpng-devel -y (센트OS)
+# sudo apt install libpng-devel -y (데비안)
+# sudo yum install libtbb-dev -y (센트OS)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	find_package(PNG REQUIRED)
 	include_directories(${PNG_INCLUDE_DIR})
 	message(STATUS "\${PNG_INCLUDE_DIR} = ${PNG_INCLUDE_DIR}")
 
+	# 우분투 18.04에서는 인클루드를 못찾음 - 확인요망
 	# TBB find_package 안됨 - github 참고
 	# find_package(TBB REQUIRED)
 	# include_directories(${TBB_INCLUDE_DIR})
