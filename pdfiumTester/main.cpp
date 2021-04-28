@@ -4,15 +4,17 @@
 #include <vector> // std::vector
 #include <string> // std::string
 #include <memory> // std::unique_ptr
+#include <chrono> // std::chrono
+#include <iostream> // std::cout
 #include "fpdf_converter.h"
-#include <chrono>
-#include <iostream>
+#include "cmdline.h"
 
 #ifdef _WIN32
 #   include <ppl.h>
 #else
 #   include <string.h> // strdup
-#   include <libgen.h> // dirname
+#   include <sys/stat.h> // stat
+#   include <libgen.h> // dirname, basename
 #   include <tbb/parallel_for_each.h> // parallel_for_each
 namespace concurrency {
     using tbb::parallel_for_each;
@@ -21,24 +23,25 @@ namespace concurrency {
 
 int main(int argc, char* argv[])
 {
-#ifdef _WIN32
-    ULONG_PTR gdiplusToken;
-    Gdiplus::GdiplusStartupInput gdiplusStartupInput = { 0, };
-    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-#endif
+    cmdline::parser parser;
+    parser.add<std::string>("source", 's', "PDF absolute file path", true, "");
+    parser.add<std::string>("result", 'r', "result absolute dir", true, "");
+    parser.add<std::string>("type", 't', "convert type", false, "png", cmdline::oneof<std::string>("png", "txt"));
+    parser.add("memory", '\0', "load memory");
+    parser.add("ppl", '\0', "use ppl library");
+    parser.add("help", 0, "print this message");
+    parser.set_program_name("pdfiumTester");
 
-    std::string exeDir;
-#ifdef _WIN32
-    char drive[_MAX_DRIVE] = { 0, }; // 드라이브 명
-    char dir[_MAX_DIR] = { 0, }; // 디렉토리 경로
-    _splitpath_s(argv[0], drive, _MAX_DRIVE, dir, _MAX_DIR, nullptr, 0, nullptr, 0);
-    exeDir = std::string(drive) + dir;
-#else
-    char* exePath = strdup(argv[0]);
-    exeDir = dirname(exePath);
-    free(exePath);
-    exeDir += "/";
-#endif
+    bool ok = parser.parse(argc, argv);
+
+    if (argc == 1 || parser.exist("help") || ok == false){
+        std::cerr << parser.usage();
+        return 0;
+    }
+
+    std::string source = parser.get<std::string>("source");
+    std::string result = parser.get<std::string>("result");
+    std::string type = parser.get<std::string>("type");
 
     struct FreeDeleter 
     {
@@ -48,6 +51,60 @@ int main(int argc, char* argv[])
         }
     }; // struct FreeDeleter 
     using AutoMemoryPtr = std::unique_ptr<char, FreeDeleter>;
+
+    std::string rawFileName;
+#ifdef _WIN32
+
+#else
+    {
+        auto _dirExists = [](const char* const dirPath) -> bool {
+            struct stat info;
+            if (stat(dirPath, &info) == 0 && S_ISDIR(info.st_mode)) {
+                return true;
+            }
+
+            return false;
+        };
+        auto _addDirSeparator = [](const std::string& dirPath) -> std::string {
+            std::string addDirPath = dirPath;
+            if (dirPath.back() != '/') {
+                addDirPath += "/";
+            }
+            return addDirPath;
+        };
+        auto _removeExt = [](const std::string& fileName) -> std::string {
+            size_t lastIndex = fileName.find_last_of("."); 
+            std::string rawName = fileName.substr(0, lastIndex);
+            return rawName;
+        };
+
+        // PDF 파일이 존재하는지 체크
+        if (access(source.c_str(), F_OK)) {
+            std::cout << "source file is not valid path" << std::endl;
+            return 0;
+        }
+
+        // 결과 폴더가 존재하는지 체크
+        if (!_dirExists(result.c_str())) {
+            std::cout << "result directory is not exist" << std::endl;
+            return 0;
+        }
+        result = _addDirSeparator(result);
+
+        rawFileName = _removeExt(basename(AutoMemoryPtr(strdup(source.c_str())).get()));
+    }
+#endif
+
+    // 
+    const std::string samplePath = source;
+    const std::string resultDir= result;
+    const std::string pdfName = rawFileName;
+
+#ifdef _WIN32
+    ULONG_PTR gdiplusToken;
+    Gdiplus::GdiplusStartupInput gdiplusStartupInput = { 0, };
+    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+#endif
 
     auto getFileContents = [](const char* filename, size_t* retlen) -> AutoMemoryPtr {
         FILE* file = fopen(filename, "rb");
@@ -75,10 +132,6 @@ int main(int argc, char* argv[])
         return buffer;
     };
 
-    const std::string pdfName = "sample01";
-    const std::string samplePath = exeDir + "samples/" + pdfName + ".pdf";
-    const std::string resultDir = exeDir + "result/";
-
 	FPDF_LIBRARY_CONFIG config;
 
 	config.version = 3;
@@ -98,7 +151,7 @@ int main(int argc, char* argv[])
 #endif
         FPDF_FORMHANDLE form = FPDFDOC_InitFormFillEnvironment(document, nullptr);
         {
-#if 0            
+#if 1            
             for (int pageIndex = 0; pageIndex < FPDF_GetPageCount(document); pageIndex++) {
                 FPDF_PAGE page = ::FPDF_LoadPage(document, pageIndex);
                 {

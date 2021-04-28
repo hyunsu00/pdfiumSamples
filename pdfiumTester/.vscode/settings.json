@@ -33,7 +33,11 @@
 		"streambuf": "cpp",
 		"tuple": "cpp",
 		"utility": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"cmath": "cpp",
+		"cstring": "cpp",
+		"deque": "cpp",
+		"numeric": "cpp"
 	},
 	"C_Cpp.formatting": "Disabled"
 }

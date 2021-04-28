@@ -10,6 +10,12 @@
 			"request": "launch",
 			"program": "${workspaceFolder}/build/pdfiumTester",
 			"args": [],
+			// "args": [
+			// 	"-s",
+			// 	"/samples/sample01.pdf",
+			// 	"-r",
+			// 	"/samples/result"
+			// ],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}/build",
 			"environment": [],
