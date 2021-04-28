@@ -58,7 +58,7 @@ namespace gdiplus {
         return output;
     }
 */
-    bool WritePng(const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
+    inline bool WritePng(const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
     {
         float pageWidth = FPDF_GetPageWidthF(page);
         float pageHeight = FPDF_GetPageHeightF(page);

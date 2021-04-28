@@ -44,13 +44,17 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	set(SRC_FILES "image_png.cpp" "image_png.h")
 endif()
 
+set (EXTERN_DIR ${CMAKE_SOURCE_DIR}/Extern)
+include_directories(${EXTERN_DIR})
+
 ###
 # 이 프로젝트의 실행 파일에 소스를 추가합니다.
 add_executable (${PROJECT_NAME} 
 	"main.cpp" 
 	${SRC_FILES}
-	"span.h" 
+	"Extern/span.h" 
 	"fpdf_converter.h"
+	"PDFiumConverter.cpp"
 )
 
 ###
@@ -58,7 +62,7 @@ add_executable (${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} pdfium)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	target_link_libraries(${PROJECT_NAME} ${PNG_LIBRARY})
-	target_link_libraries(${PROJECT_NAME} "tbb")
+	# target_link_libraries(${PROJECT_NAME} "tbb")
 else()
 	target_link_libraries(${PROJECT_NAME} "gdiplus.lib")
 endif()

@@ -7,7 +7,7 @@
 #include <fpdf_edit.h> // FPDFPage_HasTransparency
 #include <fpdf_formfill.h> // FPDF_FFLDraw
 #include "image_png.h"
-#define _ASSERTE
+#include "fpdf_assert.h"
 
 namespace libpng {
 
@@ -25,7 +25,7 @@ namespace libpng {
     // 4 bytes per pixel, byte order: blue, green, red, alpha.
     #define FPDFBitmap_BGRA 4
 */   
-    std::vector<uint8_t> EncodePng(
+    inline std::vector<uint8_t> EncodePng(
         std::span<const uint8_t> input,
         int width,
         int height,
@@ -56,7 +56,7 @@ namespace libpng {
         return png;
     }
 
-    bool WritePng(const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
+    inline bool WritePng(const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
     {
         float pageWidth = FPDF_GetPageWidthF(page);
         float pageHeight = FPDF_GetPageHeightF(page);

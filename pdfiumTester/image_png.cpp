@@ -1,6 +1,6 @@
 ﻿// image_png.cpp
 #include "image_png.h"
-#include "debug_assert.h"
+#include "fpdf_assert.h"
 
 #include <png.h>
 #include <zlib.h> // Z_DEFAULT_COMPRESSION
