@@ -21,6 +21,7 @@ message(STATUS "\${PDFium_DIR} = ${PDFium_DIR}")
 # 패키지 찾기 - PDFiumConfig.cmake 파일 인클루드
 find_package(PDFium REQUIRED)
 message(STATUS "\${PDFium_INCLUDE_DIR} = ${PDFium_INCLUDE_DIR}")
+message(STATUS "\${PDFium_LIBRARY} = ${PDFium_LIBRARY}")
 message(STATUS "\${CMAKE_CURRENT_LIST_DIR} = ${CMAKE_CURRENT_LIST_DIR}")
 
 # 패키지 찾기 - PNGConfig.cmake 파일 인클루드
@@ -118,3 +119,31 @@ add_custom_command(
 	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/result/"
 )
 message(STATUS "\${CMAKE_COMMAND} = ${CMAKE_COMMAND}")
+
+
+install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_NAME})
+install(FILES ${PDFium_LIBRARY} DESTINATION ${PROJECT_NAME})
+
+###
+# cpack
+set(_fmt TGZ)
+if(WIN32)
+  set(_fmt ZIP)
+endif()
+
+# 인스톨 파일 압축
+set(CPACK_GENERATOR ${_fmt})
+# 소스 파일 압축
+# set(CPACK_SOURCE_GENERATOR ${_fmt})
+set(CPACK_PACKAGE_VENDOR "Hncom.Inc")
+set(CPACK_PACKAGE_CONTACT "Kim HyunSu")
+# set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+# set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+# install(FILES ${CPACK_RESOURCE_FILE_LICENSE} ${CPACK_RESOURCE_FILE_README} DESTINATION ${PROJECT_NAME})
+set(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/package")
+set(CPACK_PACKAGE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+
+include(CPack)
