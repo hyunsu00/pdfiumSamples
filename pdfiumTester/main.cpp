@@ -2,14 +2,10 @@
 #include <chrono> // std::chrono
 #include <iostream> // std::cout
 #include <string> // std::string, std::wstring
-#include <ctype.h> // tolower
+#include <ctype.h> // tolower 
 #include "cmdline.h" // cmdline::parser
 #include "PDFiumConverter.h"
 #include "fpdf_utils.h"
-
-#ifdef _WIN32
-#else
-#endif
 
 int main(int argc, char* argv[])
 {

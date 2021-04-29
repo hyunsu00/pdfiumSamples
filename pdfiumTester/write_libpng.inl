@@ -58,25 +58,33 @@ namespace libpng {
 
     inline bool WritePng(const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
     {
+        _ASSERTE(pathName && "pathName is not Null");
+        _ASSERTE(page && "page is not Null");
+        if (!pathName || !page) {
+            return false;
+        }
+
         float pageWidth = FPDF_GetPageWidthF(page);
         float pageHeight = FPDF_GetPageHeightF(page);
         int width = static_cast<int>(pageWidth / 72.F * dpi);
         int height = static_cast<int>(pageHeight / 72.F * dpi);
 
         int alpha = FPDFPage_HasTransparency(page) ? 1 : 0;
-        FPDF_BITMAP bitmap = FPDFBitmap_Create(width, height, alpha);
-        if (!bitmap) {
+        FPDF_BITMAP fpdf_bitmap = FPDFBitmap_Create(width, height, alpha);
+        _ASSERTE(fpdf_bitmap && "fpdf_bitmap is not Null");
+        if (!fpdf_bitmap) {
             return false;
         }
+        AutoFPDFBitmapPtr bitmap(fpdf_bitmap);
 
         FPDF_DWORD fill_color = alpha ? 0x00000000 : 0xFFFFFFFF;
-        FPDFBitmap_FillRect(bitmap, 0, 0, width, height, fill_color);
+        FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, fill_color);
         int flags = 0;
-        FPDF_RenderPageBitmap(bitmap, page, 0, 0, width, height, 0, flags);
-        FPDF_FFLDraw(form, bitmap, page, 0, 0, width, height, 0, flags);
+        FPDF_RenderPageBitmap(bitmap.get(), page, 0, 0, width, height, 0, flags);
+        FPDF_FFLDraw(form, bitmap.get(), page, 0, 0, width, height, 0, flags);
 
-        int stride = FPDFBitmap_GetStride(bitmap);
-        void* buffer = FPDFBitmap_GetBuffer(bitmap);
+        int stride = FPDFBitmap_GetStride(bitmap.get());
+        void* buffer = FPDFBitmap_GetBuffer(bitmap.get());
 
         std::vector<uint8_t> png_encoding = EncodePng(
             std::span<const uint8_t>(static_cast<uint8_t*>(buffer), stride * height),

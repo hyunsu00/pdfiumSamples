@@ -40,21 +40,46 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	# message(STATUS "\${TBB_INCLUDE_DIR} = ${TBBINCLUDE_DIR}")
 endif() 
 
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-	set(SRC_FILES "image_png.cpp" "image_png.h")
-endif()
-
 set (EXTERN_DIR ${CMAKE_SOURCE_DIR}/Extern)
 include_directories(${EXTERN_DIR})
+
+# 플랫폼 독립 코딩 위해 CRT 보안관련 경고 및 VC컴파일러 경고 비활성화
+if(MSVC)
+	# 파일 관련 함수 보안 경고 무시
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	# cmdline.h 사용시 컴파일러 경고 무시
+	add_compile_options(
+		/wd4267
+		/wd4566
+		/wd4101
+	)
+endif()
+
+###
+# 소스 파일 설정
+set(SRC_FILES 
+	"main.cpp" 
+	"PDFiumConverter.cpp" 
+	"PDFiumConverter.h"
+	"fpdf_assert.h"
+	"fpdf_converter.h"
+	"fpdf_raii.h"
+	"fpdf_utils"
+)
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	set(SRC_FILES ${SRC_FILES} "image_png.cpp" "image_png.h" "write_libpng.inl")
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	set(SRC_FILES ${SRC_FILES} "write_gdiplus.inl")
+endif()
+set(EXTERN_FILES "./Extern/cmdline.h" "./Extern/span.h")
+message(STATUS "\${SRC_FILES} = ${SRC_FILES}")
+message(STATUS "\${EXTERN_FILES} = ${EXTERN_FILES}")
 
 ###
 # 이 프로젝트의 실행 파일에 소스를 추가합니다.
 add_executable (${PROJECT_NAME} 
-	"main.cpp" 
 	${SRC_FILES}
-	"Extern/span.h" 
-	"fpdf_converter.h"
-	"PDFiumConverter.cpp"
+	${EXTERN_FILES}
 )
 
 ###

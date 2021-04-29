@@ -61,25 +61,33 @@ namespace gdiplus {
 
     inline bool WritePng(const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
     {
+        _ASSERTE(pathName && "pathName is not Null");
+        _ASSERTE(page && "page is not Null");
+        if (!pathName || !page) {
+            return false;
+        }
+
         float pageWidth = FPDF_GetPageWidthF(page);
         float pageHeight = FPDF_GetPageHeightF(page);
         int width = static_cast<int>(pageWidth / 72.F * dpi);
         int height = static_cast<int>(pageHeight / 72.F * dpi);
 
         int alpha = FPDFPage_HasTransparency(page) ? 1 : 0;
-        FPDF_BITMAP bitmap = FPDFBitmap_Create(width, height, alpha);
-        if (!bitmap) {
+        FPDF_BITMAP fpdf_bitmap = FPDFBitmap_Create(width, height, alpha);
+        _ASSERTE(fpdf_bitmap && "fpdf_bitmap is not Null");
+        if (!fpdf_bitmap) {
             return false;
         }
-
+        AutoFPDFBitmapPtr bitmap(fpdf_bitmap);
+        
         FPDF_DWORD fill_color = alpha ? 0x00000000 : 0xFFFFFFFF;
-        FPDFBitmap_FillRect(bitmap, 0, 0, width, height, fill_color);
+        FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, fill_color);
         int flags = 0;
-        FPDF_RenderPageBitmap(bitmap, page, 0, 0, width, height, 0, flags);
-        FPDF_FFLDraw(form, bitmap, page, 0, 0, width, height, 0, flags);
+        FPDF_RenderPageBitmap(bitmap.get(), page, 0, 0, width, height, 0, flags);
+        FPDF_FFLDraw(form, bitmap.get(), page, 0, 0, width, height, 0, flags);
 
-        int stride = FPDFBitmap_GetStride(bitmap);
-        void* buffer = FPDFBitmap_GetBuffer(bitmap);
+        int stride = FPDFBitmap_GetStride(bitmap.get());
+        void* buffer = FPDFBitmap_GetBuffer(bitmap.get());
 
         {
             auto _getEncoderClsid = [](const wchar_t* format, CLSID* pClsid) -> int {
@@ -112,18 +120,24 @@ namespace gdiplus {
                 return -1;  // Failure
             };
 
-            Gdiplus::Bitmap oBitmap(width, height, stride, PixelFormat32bppARGB, (BYTE*)buffer);
+            Gdiplus::Bitmap gBitmap(width, height, stride, PixelFormat32bppARGB, (BYTE*)buffer);
             CLSID pngClsid = { 0, };
             int result = _getEncoderClsid(L"image/png", &pngClsid);
+            _ASSERTE(result != -1 && "_getEncoderClsid() Failed");
             if (result == -1) {
                 return false;
             }
-            Gdiplus::Status status = oBitmap.SetResolution(dpi, dpi);
+            Gdiplus::Status status = gBitmap.SetResolution(dpi, dpi);
+            _ASSERTE(status == Gdiplus::Status::Ok && "gBitmap.SetResolution() Failed");
             if (status != Gdiplus::Status::Ok) {
                 return false;
             }
 
-            oBitmap.Save(ATL::CA2W(pathName), &pngClsid, NULL);
+            status = gBitmap.Save(ATL::CA2W(pathName), &pngClsid, NULL);
+            _ASSERTE(status == Gdiplus::Status::Ok && "gBitmap.Save() Failed");
+            if (status != Gdiplus::Status::Ok) {
+                return false;
+            }
         }
 
         return true;

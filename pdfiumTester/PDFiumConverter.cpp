@@ -79,7 +79,7 @@ namespace PDF { namespace Converter {
 		if (m_bMemory) {
 			size_t buffer_len = 0;
 			memoryFile = getFileContents(_U2A(sourceFile).c_str(), &buffer_len);
-			document = ::FPDF_LoadMemDocument(memoryFile.get(), buffer_len, nullptr);
+			document = ::FPDF_LoadMemDocument(memoryFile.get(), static_cast<int>(buffer_len), nullptr);
 		} else {
 			document = ::FPDF_LoadDocument(_U2A(sourceFile).c_str(), nullptr);
 		}
@@ -91,20 +91,20 @@ namespace PDF { namespace Converter {
 
 				// !!!!! Pdfium은 쓰레드 쎄이프 하지 않다. --> 실망
             	// https://groups.google.com/g/pdfium/c/HeZSsM_KEUk
-				std::vector<int> vIndex(FPDF_GetPageCount(document));
+				std::vector<size_t> vIndex(FPDF_GetPageCount(document));
 				for (size_t i = 0; i < vIndex.size(); i++) vIndex[i] = i;
 
 				concurrency::parallel_for_each(
 					vIndex.begin(),
 					vIndex.end(),
-					[&](int pageIndex) {
-						FPDF_PAGE page = ::FPDF_LoadPage(document, pageIndex);
+					[&](size_t pageIndex) {
+						FPDF_PAGE page = ::FPDF_LoadPage(document, static_cast<int>(pageIndex));
 						{
 							FPDF_TEXTPAGE textPage = ::FPDFText_LoadPage(page);
 							{
 								std::string resultPath = _U2A(targetDir) + std::to_string(pageIndex) + ".png";
 								// PNG파일 추출
-								fpdf::converter::WritePng(resultPath.c_str(), page, form, dpi);
+								fpdf::converter::WritePng(resultPath.c_str(), page, form, static_cast<float>(dpi));
 							}
 							::FPDFText_ClosePage(textPage);
 						}
@@ -119,7 +119,7 @@ namespace PDF { namespace Converter {
 						{
 							std::string resultPath = _U2A(targetDir) + std::to_string(pageIndex) + ".png";
 							// PNG파일 추출
-							fpdf::converter::WritePng(resultPath.c_str(), page, form, dpi);
+							fpdf::converter::WritePng(resultPath.c_str(), page, form, static_cast<float>(dpi));
 						}
 						::FPDFText_ClosePage(textPage);
 					}
@@ -151,7 +151,7 @@ namespace PDF { namespace Converter {
 		if (m_bMemory) {
 			size_t buffer_len = 0;
 			memoryFile = getFileContents(samplePath.c_str(), &buffer_len);
-			document = ::FPDF_LoadMemDocument(memoryFile.get(), buffer_len, nullptr);
+			document = ::FPDF_LoadMemDocument(memoryFile.get(), static_cast<int>(buffer_len), nullptr);
 		} else {
 			document = ::FPDF_LoadDocument(samplePath.c_str(), nullptr);
 		}

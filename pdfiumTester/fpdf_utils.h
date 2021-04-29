@@ -4,8 +4,10 @@
 #include <string> // std::string
 #include <vector> // std::vector
 #include <stdlib.h> // wcstombs, mbstowcs
+#include "fpdf_raii.h"
 
 #ifdef _WIN32
+#	include <Shlwapi.h>
 #else
 #   include <sys/stat.h> // stat
 #	include <unistd.h> // access
@@ -14,15 +16,6 @@
 #endif
 
 namespace {
-
-	struct FreeDeleter
-	{
-		inline void operator()(void* ptr) const
-		{
-			free(ptr);
-		}
-	}; // struct FreeDeleter 
-	using AutoMemoryPtr = std::unique_ptr<char, FreeDeleter>;
 
 	auto getFileContents = [](const char* filename, size_t* retlen) -> AutoMemoryPtr {
 		FILE* file = fopen(filename, "rb");
@@ -62,21 +55,23 @@ namespace {
 		return &wstrVector[0];
 	};
 
-	auto pathFileExists = [](const char* const filePath) -> bool {
+	auto pathFileExists = [](const char* const pszPath) -> bool {
 #ifdef _WIN32
+		return ::PathFileExistsA(pszPath) ? true : false;
 #else
-		if (access(filePath, F_OK) == 0) {
+		if (access(pszPath, F_OK) == 0) {
 			return true;
 		}
 #endif
 		return false;
 	};
 
-	auto pathIsDirectory = [](const char* const dirPath) -> bool {
+	auto pathIsDirectory = [](const char* const pszPath) -> bool {
 #ifdef _WIN32
+		return ::PathIsDirectoryA(pszPath) ? true : false;
 #else
 		struct stat info;
-		if (stat(dirPath, &info) == 0 && S_ISDIR(info.st_mode)) {
+		if (stat(pszPath, &info) == 0 && S_ISDIR(info.st_mode)) {
 			return true;
 		}
 #endif
@@ -99,14 +94,13 @@ namespace {
 
 	auto pathFindFilename = [](const std::string& filePath) -> std::string {
 #ifdef _WIN32
-		std::string fileName;
+		std::string fileName = ::PathFindFileNameA(filePath.c_str());
 #else
 		std::string fileName = basename(AutoMemoryPtr(strdup(filePath.c_str())).get());
 #endif
 		return fileName;
 	};
 	
-
 	auto removeExt = [](const std::string& fileName) -> std::string {
 		size_t lastIndex = fileName.find_last_of(".");
 		std::string rawName = fileName.substr(0, lastIndex);
