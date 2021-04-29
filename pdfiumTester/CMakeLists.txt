@@ -29,15 +29,17 @@ message(STATUS "\${CMAKE_CURRENT_LIST_DIR} = ${CMAKE_CURRENT_LIST_DIR}")
 # sudo apt install libpng-devel -y (데비안)
 # sudo yum install libtbb-dev -y (센트OS)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	# PNG
 	find_package(PNG REQUIRED)
 	include_directories(${PNG_INCLUDE_DIR})
 	message(STATUS "\${PNG_INCLUDE_DIR} = ${PNG_INCLUDE_DIR}")
 
-	# 우분투 18.04에서는 인클루드를 못찾음 - 확인요망
-	# TBB find_package 안됨 - github 참고
-	# find_package(TBB REQUIRED)
-	# include_directories(${TBB_INCLUDE_DIR})
-	# message(STATUS "\${TBB_INCLUDE_DIR} = ${TBBINCLUDE_DIR}")
+	# TBB
+	list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+	message(STATUS "\${CMAKE_MODULE_PATH} = ${CMAKE_MODULE_PATH}")
+	find_package(TBB REQUIRED)
+	include_directories(${TBB_INCLUDE_DIRS})
+	message(STATUS "\${TBB_INCLUDE_DIRS} = ${TBB_INCLUDE_DIRS}")
 endif() 
 
 set (EXTERN_DIR ${CMAKE_SOURCE_DIR}/Extern)
@@ -87,7 +89,9 @@ add_executable (${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} pdfium)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	target_link_libraries(${PROJECT_NAME} ${PNG_LIBRARY})
-	target_link_libraries(${PROJECT_NAME} "tbb")
+	message(STATUS "\${PNG_LIBRARY} = ${PNG_LIBRARY}")
+	target_link_libraries(${PROJECT_NAME} ${TBB_LIBRARIES})
+	message(STATUS "\${TBB_LIBRARIES} = ${TBB_LIBRARIES}")
 else()
 	target_link_libraries(${PROJECT_NAME} "gdiplus.lib")
 endif()

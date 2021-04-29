@@ -95,6 +95,11 @@ namespace libpng {
         );
 
         FILE* fp = fopen(pathName, "wb");
+        _ASSERTE(fp && "fopen() Failed");
+        if (!fp) {
+            return false;        
+        }
+        
         size_t bytes_written = fwrite(&png_encoding.front(), 1, png_encoding.size(), fp);
         (void)fclose(fp);
 

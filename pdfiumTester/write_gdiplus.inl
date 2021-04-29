@@ -121,7 +121,7 @@ namespace gdiplus {
             };
 
             Gdiplus::Bitmap gBitmap(width, height, stride, PixelFormat32bppARGB, (BYTE*)buffer);
-            CLSID pngClsid = { 0, };
+            CLSID pngClsid = {0, };
             int result = _getEncoderClsid(L"image/png", &pngClsid);
             _ASSERTE(result != -1 && "_getEncoderClsid() Failed");
             if (result == -1) {
