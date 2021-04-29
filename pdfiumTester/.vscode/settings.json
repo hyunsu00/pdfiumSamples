@@ -37,7 +37,8 @@
 		"cmath": "cpp",
 		"cstring": "cpp",
 		"deque": "cpp",
-		"numeric": "cpp"
+		"numeric": "cpp",
+		"bitset": "cpp"
 	},
 	"C_Cpp.formatting": "Disabled"
 }

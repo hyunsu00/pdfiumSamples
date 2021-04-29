@@ -1,10 +1,17 @@
 ﻿// PDFiumConverter.h
 #pragma once
+#include <bitset> // std::bitset
 
 namespace PDF { namespace Converter {
 
 	class PDFium
 	{
+	public:
+		enum Flag {
+			FlagMemory = 0,
+			FlagPPL,
+		}; // enum Flag 
+
 	public:
 		PDFium();
 		~PDFium();
@@ -18,8 +25,7 @@ namespace PDF { namespace Converter {
 		bool ToText(const wchar_t* sourceFile, const wchar_t* targetDir);
 
 	private:
-		bool m_bMemory;
-		bool m_bPPL;
+		std::bitset<2> m_Flag;
 	}; // class PDFBox
 
 }} // PDF::Converter

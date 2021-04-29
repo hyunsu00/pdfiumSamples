@@ -27,8 +27,7 @@ namespace PDF { namespace Converter {
 #endif
 
 	PDFium::PDFium()
-	: m_bMemory(false)
-	, m_bPPL(false)
+	: m_Flag()
 	{
 	}
 
@@ -75,7 +74,7 @@ namespace PDF { namespace Converter {
 		FPDF_DOCUMENT fpdf_document = nullptr;
 		AutoMemoryPtr memoryFile;
 
-		if (m_bMemory) {
+		if (m_Flag.test(FlagMemory)) {
 			size_t buffer_len = 0;
 			memoryFile = getFileContents(_U2A(sourceFile).c_str(), &buffer_len);
 			fpdf_document = ::FPDF_LoadMemDocument(memoryFile.get(), static_cast<int>(buffer_len), nullptr);
@@ -92,7 +91,7 @@ namespace PDF { namespace Converter {
 		AutoFPDFFormHandlePtr form(fpdf_form);
 
 		{
-			if (m_bPPL) {
+			if (m_Flag.test(FlagPPL)) {
 				_ASSERTE(!"PPL은 현재 디거깅이 필요함 - 실패를 반환한다.");
 
 				// !!!!! Pdfium은 쓰레드 쎄이프 하지 않다. --> 실망
@@ -154,7 +153,7 @@ namespace PDF { namespace Converter {
 		FPDF_DOCUMENT fpdf_document = nullptr;
 		AutoMemoryPtr memoryFile;
 
-		if (m_bMemory) {
+		if (m_Flag.test(FlagMemory)) {
 			size_t buffer_len = 0;
 			memoryFile = getFileContents(samplePath.c_str(), &buffer_len);
 			fpdf_document = ::FPDF_LoadMemDocument(memoryFile.get(), static_cast<int>(buffer_len), nullptr);
