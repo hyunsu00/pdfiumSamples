@@ -62,12 +62,12 @@ add_executable (${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} pdfium)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	target_link_libraries(${PROJECT_NAME} ${PNG_LIBRARY})
-	# target_link_libraries(${PROJECT_NAME} "tbb")
+	target_link_libraries(${PROJECT_NAME} "tbb")
 else()
 	target_link_libraries(${PROJECT_NAME} "gdiplus.lib")
 endif()
 
-# LINUX #include <experimental/type_traits> 사용위해
+# LINUX C++ 11 사용위해 - GCC 버전 체크후 설정해주어야 한다.
 message(STATUS "\${CMAKE_SYSTEM_NAME} = ${CMAKE_SYSTEM_NAME}")
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	message(STATUS "\${CMAKE_COMPILER_IS_GNUCC} = ${CMAKE_COMPILER_IS_GNUCC}")

@@ -12,9 +12,17 @@
 			"args": [],
 			// "args": [
 			// 	"-s",
-			// 	"/samples/sample01.pdf",
+			// 	"/work/samples/sample01.pdf",
 			// 	"-r",
-			// 	"/samples/result"
+			// 	"/work/samples/result/",
+			// ],
+			// "args": [
+			// 	"-s",
+			// 	"/work/samples/sample01.pdf",
+			// 	"-r",
+			// 	"/work/samples/result/",
+			// 	"-t",
+			// 	"txt"
 			// ],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}/build",

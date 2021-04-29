@@ -15,10 +15,10 @@
 #else
 #   include <string.h> // strdup
 #   include <libgen.h> // dirname, basename
-//#   include <tbb/parallel_for_each.h> // parallel_for_each
-//namespace concurrency {
-//	using tbb::parallel_for_each;
-//}
+#   include <tbb/parallel_for_each.h> // parallel_for_each
+namespace concurrency {
+	using tbb::parallel_for_each;
+}
 #endif
 
 namespace PDF { namespace Converter {
@@ -77,19 +77,20 @@ namespace PDF { namespace Converter {
 		AutoMemoryPtr memoryFile;
 
 		if (m_bMemory) {
-			document = ::FPDF_LoadDocument(_U2A(sourceFile).c_str(), nullptr);
-		} else {
 			size_t buffer_len = 0;
 			memoryFile = getFileContents(_U2A(sourceFile).c_str(), &buffer_len);
 			document = ::FPDF_LoadMemDocument(memoryFile.get(), buffer_len, nullptr);
+		} else {
+			document = ::FPDF_LoadDocument(_U2A(sourceFile).c_str(), nullptr);
 		}
 
 		FPDF_FORMHANDLE form = FPDFDOC_InitFormFillEnvironment(document, nullptr);
 		{
 			if (m_bPPL) {
-#if 0
-				// !!!!! Pdfium�� ������ ������ ���� �ʴ�. --> �Ǹ�
-				// https://groups.google.com/g/pdfium/c/HeZSsM_KEUk
+				_ASSERTE(!"PPL은 현재 디거깅이 필요함 - 실패를 반환한다.");
+
+				// !!!!! Pdfium은 쓰레드 쎄이프 하지 않다. --> 실망
+            	// https://groups.google.com/g/pdfium/c/HeZSsM_KEUk
 				std::vector<int> vIndex(FPDF_GetPageCount(document));
 				for (size_t i = 0; i < vIndex.size(); i++) vIndex[i] = i;
 
@@ -101,8 +102,8 @@ namespace PDF { namespace Converter {
 						{
 							FPDF_TEXTPAGE textPage = ::FPDFText_LoadPage(page);
 							{
-								std::string resultPath = resultDir + pdfName + "." + std::to_string(pageIndex) + ".png";
-								// PNG���� ����
+								std::string resultPath = _U2A(targetDir) + std::to_string(pageIndex) + ".png";
+								// PNG파일 추출
 								fpdf::converter::WritePng(resultPath.c_str(), page, form, dpi);
 							}
 							::FPDFText_ClosePage(textPage);
@@ -110,9 +111,6 @@ namespace PDF { namespace Converter {
 						::FPDF_ClosePage(page);
 					}
 				);
-#else
-				_ASSERTE(!"���� PPL�� �׽�Ʈ�� ��ġ�� �ʾ� �����Ѵ�.");
-#endif
 			} else {
 				for (int pageIndex = 0; pageIndex < FPDF_GetPageCount(document); pageIndex++) {
 					FPDF_PAGE page = ::FPDF_LoadPage(document, pageIndex);
@@ -120,7 +118,7 @@ namespace PDF { namespace Converter {
 						FPDF_TEXTPAGE textPage = ::FPDFText_LoadPage(page);
 						{
 							std::string resultPath = _U2A(targetDir) + std::to_string(pageIndex) + ".png";
-							// PNG���� ����
+							// PNG파일 추출
 							fpdf::converter::WritePng(resultPath.c_str(), page, form, dpi);
 						}
 						::FPDFText_ClosePage(textPage);
@@ -145,17 +143,17 @@ namespace PDF { namespace Converter {
 
 		const std::string samplePath = _U2A(sourceFile);
 		const std::string rawFileName = removeExt(pathFindFilename(samplePath));
-		const std::string resultPath = _U2A(targetDir) + rawFileName + ".png";
+		const std::string resultPath = _U2A(targetDir) + rawFileName + ".txt";
 
 		FPDF_DOCUMENT document = nullptr;
 		AutoMemoryPtr memoryFile;
 
 		if (m_bMemory) {
-			document = ::FPDF_LoadDocument(samplePath.c_str(), nullptr);
-		} else {
 			size_t buffer_len = 0;
 			memoryFile = getFileContents(samplePath.c_str(), &buffer_len);
 			document = ::FPDF_LoadMemDocument(memoryFile.get(), buffer_len, nullptr);
+		} else {
+			document = ::FPDF_LoadDocument(samplePath.c_str(), nullptr);
 		}
 
 		{

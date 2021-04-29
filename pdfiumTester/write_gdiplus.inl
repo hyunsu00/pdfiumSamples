@@ -12,8 +12,8 @@
 
 namespace gdiplus {
 
-/*
-    std::vector<uint8_t> EncodePng(
+#if 0
+    inline std::vector<uint8_t> EncodePng(
         const std::span<const uint8_t>& input,
         int width,
         int height,
@@ -57,7 +57,8 @@ namespace gdiplus {
 
         return output;
     }
-*/
+#endif
+
     inline bool WritePng(const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
     {
         float pageWidth = FPDF_GetPageWidthF(page);

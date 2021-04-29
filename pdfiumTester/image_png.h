@@ -2,7 +2,7 @@
 #pragma once
 
 #include <vector> // std::vector
-//#include <span> // std::span (C++20)
+// #include <span> // std::span (C++20)
 #include "span.h"
 #include <stdint.h> // uint8_t
 namespace std {
