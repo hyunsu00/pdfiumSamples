@@ -9,8 +9,6 @@
 
 #ifdef _WIN32
 #else
-#   include <string.h> // strdup
-#   include <libgen.h> // dirname, basename
 #endif
 
 int main(int argc, char* argv[])

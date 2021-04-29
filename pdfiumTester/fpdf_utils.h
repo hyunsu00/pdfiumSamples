@@ -9,6 +9,8 @@
 #else
 #   include <sys/stat.h> // stat
 #	include <unistd.h> // access
+#   include <string.h> // strdup
+#   include <libgen.h> // dirname, basename
 #endif
 
 namespace {
