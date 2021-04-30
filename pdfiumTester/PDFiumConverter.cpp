@@ -5,7 +5,8 @@
 #include <fpdf_formfill.h> // FPDFDOC_InitFormFillEnvironment
 #include <vector> // std::vector
 #include <string> // std::string
-#include "fpdf_utils.h"
+#include "pdf_utils.h" // AutoMemoryPtr
+#include "fpdf_raii.h" // AutoFPDFDocumentPtr, AutoFPDFFormHandlePtr, AutoFPDFPagePtr, AutoFPDFTextPagePtr
 #include "fpdf_converter.h"
 
 #ifdef _WIN32

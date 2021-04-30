@@ -8,24 +8,6 @@
 
 namespace {
 
-	struct FreeDeleter
-	{
-		inline void operator()(void* ptr) const
-		{
-			free(ptr);
-		}
-	}; // struct FreeDeleter 
-	using AutoMemoryPtr = std::unique_ptr<char, FreeDeleter>;
-
-	struct FileCloseDeleter
-	{
-		inline void operator()(FILE* fp) const
-		{
-			fclose(fp);
-		}	
-	}; // struct FileCloseDeleter 
-	using AutoFilePtr = std::unique_ptr<std::remove_pointer<FILE*>::type, FileCloseDeleter>;
-
 	struct FPDFDocumentDeleter 
 	{
   		inline void operator()(FPDF_DOCUMENT doc) 

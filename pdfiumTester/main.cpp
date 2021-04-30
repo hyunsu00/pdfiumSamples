@@ -5,7 +5,7 @@
 #include <ctype.h> // tolower 
 #include "cmdline.h" // cmdline::parser
 #include "PDFiumConverter.h"
-#include "fpdf_utils.h"
+#include "pdf_utils.h"
 
 int main(int argc, char* argv[])
 {

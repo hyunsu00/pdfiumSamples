@@ -9,6 +9,7 @@
 #include <gdiplus.h>
 #include <atlbase.h>
 #include <atlconv.h>
+#include "fpdf_raii.h" // AutoFPDFBitmapPtr
 
 namespace gdiplus {
 

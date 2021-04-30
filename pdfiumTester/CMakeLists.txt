@@ -64,10 +64,10 @@ set(SRC_FILES
 	"main.cpp" 
 	"PDFiumConverter.cpp" 
 	"PDFiumConverter.h"
-	"fpdf_assert.h"
+	"pdf_assert.h"
+	"pdf_utils"
 	"fpdf_converter.h"
 	"fpdf_raii.h"
-	"fpdf_utils"
 )
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	set(SRC_FILES ${SRC_FILES} "image_png.cpp" "image_png.h" "write_libpng.inl")

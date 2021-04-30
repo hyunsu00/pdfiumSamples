@@ -4,10 +4,9 @@
 #include <string> // std::string
 #include <vector> // std::vector
 #include <stdlib.h> // wcstombs, mbstowcs
-#include "fpdf_raii.h"
 
 #ifdef _WIN32
-#	include <Shlwapi.h>
+#	include <Shlwapi.h> // PathFileExistsA, PathIsDirectoryA, PathFindFileNameA
 #else
 #   include <sys/stat.h> // stat
 #	include <unistd.h> // access
@@ -16,6 +15,24 @@
 #endif
 
 namespace {
+
+	struct FreeDeleter
+	{
+		inline void operator()(void* ptr) const
+		{
+			free(ptr);
+		}
+	}; // struct FreeDeleter
+	using AutoMemoryPtr = std::unique_ptr<char, FreeDeleter>;
+
+	struct FileCloseDeleter
+	{
+		inline void operator()(FILE* fp) const
+		{
+			fclose(fp);
+		}
+	}; // struct FileCloseDeleter 
+	using AutoFilePtr = std::unique_ptr<std::remove_pointer<FILE*>::type, FileCloseDeleter>;
 
 	auto getFileContents = [](const char* filename, size_t* retlen) -> AutoMemoryPtr {
 		FILE* file = fopen(filename, "rb");
@@ -53,6 +70,42 @@ namespace {
 		std::vector<wchar_t> wstrVector(str.length() + 1, 0);
 		mbstowcs(&wstrVector[0], str.c_str(), wstrVector.size());
 		return &wstrVector[0];
+	};
+
+	auto _U2UTF8 = [](const std::wstring& wstr) -> std::string {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4333)
+#endif
+		std::string ustr;
+		for (size_t i = 0; i < wstr.size(); i++) {
+			wchar_t w = wstr[i];
+			if (w <= 0x7f) {
+				ustr.push_back((char)w);
+			}
+			else if (w <= 0x7ff) {
+				ustr.push_back(0xc0 | ((w >> 6) & 0x1f));
+				ustr.push_back(0x80 | (w & 0x3f));
+			}
+			else if (w <= 0xffff) {
+				ustr.push_back(0xe0 | ((w >> 12) & 0x0f));
+				ustr.push_back(0x80 | ((w >> 6) & 0x3f));
+				ustr.push_back(0x80 | (w & 0x3f));
+			}
+			else if (w <= 0x10ffff) {
+				ustr.push_back(0xf0 | ((w >> 18) & 0x07));
+				ustr.push_back(0x80 | ((w >> 12) & 0x3f));
+				ustr.push_back(0x80 | ((w >> 6) & 0x3f));
+				ustr.push_back(0x80 | (w & 0x3f));
+			}
+			else {
+				ustr.push_back('?');
+			}
+		}
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+		return ustr;
 	};
 
 	auto pathFileExists = [](const char* const pszPath) -> bool {
@@ -100,7 +153,7 @@ namespace {
 #endif
 		return fileName;
 	};
-	
+
 	auto removeExt = [](const std::string& fileName) -> std::string {
 		size_t lastIndex = fileName.find_last_of(".");
 		std::string rawName = fileName.substr(0, lastIndex);

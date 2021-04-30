@@ -1,13 +1,15 @@
 ﻿// write_libpng.inl
 #pragma once
 
-#include <fpdfview.h> // FPDF_GetPageWidthF, FPDF_GetPageHeightF, FPDFBitmap_Create, 
-                      // FPDFBitmap_Create, FPDFBitmap_FillRect, FPDF_RenderPageBitmap, 
-                      // FPDFBitmap_GetStride, FPDFBitmap_GetBuffer
-#include <fpdf_edit.h> // FPDFPage_HasTransparency
+#include <fpdfview.h>   // FPDF_GetPageWidthF, FPDF_GetPageHeightF, FPDFBitmap_Create, 
+                        // FPDFBitmap_Create, FPDFBitmap_FillRect, FPDF_RenderPageBitmap, 
+                        // FPDFBitmap_GetStride, FPDFBitmap_GetBuffer
+#include <fpdf_edit.h>  // FPDFPage_HasTransparency
 #include <fpdf_formfill.h> // FPDF_FFLDraw
-#include "image_png.h"
-#include "fpdf_assert.h"
+#include "pdf_assert.h" // _ASSERTE
+#include "image_png.h"  // image::png::EncodeGrayPNG, image::png::EncodeBGRPNG, 
+                        // image::png::EncodeBGRAPNG, image::png::EncodeBGRAPNG
+#include "fpdf_raii.h"  // AutoFPDFBitmapPtr
 
 namespace libpng {
 
